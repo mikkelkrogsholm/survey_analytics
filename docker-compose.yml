@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+
+# Here we define the postgres database that will hold the data from limesurvey
+  pgsql:
+    container_name: lime_pg
+    image: postgres:10-alpine
+    environment:
+      - "POSTGRES_PASSWORD=limesurvey"
+    expose: # we only expose since the db should not be exposed to outside
+      - "5432"
+    volumes:
+      - "postgres:/var/lib/postgresql/data"
+
+# Here we define the limesurvey setup
+  limesurvey:
+    container_name: lime_survey
+    image: crramirez/limesurvey:3.17.0_190402
+    links:
+      - pgsql
+    environment:
+      - "DISABLE_MYSQL=yes" # we disable mysql because we want to use pg
+    ports:
+      - "80:80"
+    volumes:
+      - upload:/app/upload
+
+# We define a few data volumes to store the data for limesurvey and postgres
+volumes:
+  postgres:
+  upload:
